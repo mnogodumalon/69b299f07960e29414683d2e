@@ -1,4 +1,4 @@
-import type { KursVerwaltung, TeilnehmerAnmeldung, YogaKursManagement } from './app';
+import type { KursVerwaltung, TeilnehmerAnmeldung } from './app';
 
 export type EnrichedTeilnehmerAnmeldung = TeilnehmerAnmeldung & {
   kursName: string;
@@ -6,8 +6,4 @@ export type EnrichedTeilnehmerAnmeldung = TeilnehmerAnmeldung & {
 
 export type EnrichedKursVerwaltung = KursVerwaltung & {
   kursleiterName: string;
-};
-
-export type EnrichedYogaKursManagement = YogaKursManagement & {
-  uebergeordnetes_panelName: string;
 };

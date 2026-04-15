@@ -1,5 +1,5 @@
-import type { EnrichedKursVerwaltung, EnrichedTeilnehmerAnmeldung, EnrichedYogaKursManagement } from '@/types/enriched';
-import type { KursVerwaltung, KursleiterVerwaltung, TeilnehmerAnmeldung, YogaKursManagement } from '@/types/app';
+import type { EnrichedKursVerwaltung, EnrichedTeilnehmerAnmeldung } from '@/types/enriched';
+import type { KursVerwaltung, KursleiterVerwaltung, TeilnehmerAnmeldung } from '@/types/app';
 import { extractRecordId } from '@/services/livingAppsService';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -37,19 +37,5 @@ export function enrichKursVerwaltung(
   return kursVerwaltung.map(r => ({
     ...r,
     kursleiterName: resolveDisplay(r.fields.kursleiter, maps.kursleiterVerwaltungMap, 'vorname', 'nachname'),
-  }));
-}
-
-interface YogaKursManagementMaps {
-  yogaKursManagementMap: Map<string, YogaKursManagement>;
-}
-
-export function enrichYogaKursManagement(
-  yogaKursManagement: YogaKursManagement[],
-  maps: YogaKursManagementMaps
-): EnrichedYogaKursManagement[] {
-  return yogaKursManagement.map(r => ({
-    ...r,
-    uebergeordnetes_panelName: resolveDisplay(r.fields.uebergeordnetes_panel, maps.yogaKursManagementMap, 'icon'),
   }));
 }

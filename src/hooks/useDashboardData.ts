@@ -1,28 +1,25 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import type { TeilnehmerAnmeldung, KursVerwaltung, YogaKursManagement, KursleiterVerwaltung } from '@/types/app';
+import type { TeilnehmerAnmeldung, KursleiterVerwaltung, KursVerwaltung } from '@/types/app';
 import { LivingAppsService } from '@/services/livingAppsService';
 
 export function useDashboardData() {
   const [teilnehmerAnmeldung, setTeilnehmerAnmeldung] = useState<TeilnehmerAnmeldung[]>([]);
-  const [kursVerwaltung, setKursVerwaltung] = useState<KursVerwaltung[]>([]);
-  const [yogaKursManagement, setYogaKursManagement] = useState<YogaKursManagement[]>([]);
   const [kursleiterVerwaltung, setKursleiterVerwaltung] = useState<KursleiterVerwaltung[]>([]);
+  const [kursVerwaltung, setKursVerwaltung] = useState<KursVerwaltung[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   const fetchAll = useCallback(async () => {
     setError(null);
     try {
-      const [teilnehmerAnmeldungData, kursVerwaltungData, yogaKursManagementData, kursleiterVerwaltungData] = await Promise.all([
+      const [teilnehmerAnmeldungData, kursleiterVerwaltungData, kursVerwaltungData] = await Promise.all([
         LivingAppsService.getTeilnehmerAnmeldung(),
-        LivingAppsService.getKursVerwaltung(),
-        LivingAppsService.getYogaKursManagement(),
         LivingAppsService.getKursleiterVerwaltung(),
+        LivingAppsService.getKursVerwaltung(),
       ]);
       setTeilnehmerAnmeldung(teilnehmerAnmeldungData);
-      setKursVerwaltung(kursVerwaltungData);
-      setYogaKursManagement(yogaKursManagementData);
       setKursleiterVerwaltung(kursleiterVerwaltungData);
+      setKursVerwaltung(kursVerwaltungData);
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Fehler beim Laden der Daten'));
     } finally {
@@ -32,17 +29,26 @@ export function useDashboardData() {
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
-  const kursVerwaltungMap = useMemo(() => {
-    const m = new Map<string, KursVerwaltung>();
-    kursVerwaltung.forEach(r => m.set(r.record_id, r));
-    return m;
-  }, [kursVerwaltung]);
-
-  const yogaKursManagementMap = useMemo(() => {
-    const m = new Map<string, YogaKursManagement>();
-    yogaKursManagement.forEach(r => m.set(r.record_id, r));
-    return m;
-  }, [yogaKursManagement]);
+  // Silent background refresh (no loading state change → no flicker)
+  useEffect(() => {
+    async function silentRefresh() {
+      try {
+        const [teilnehmerAnmeldungData, kursleiterVerwaltungData, kursVerwaltungData] = await Promise.all([
+          LivingAppsService.getTeilnehmerAnmeldung(),
+          LivingAppsService.getKursleiterVerwaltung(),
+          LivingAppsService.getKursVerwaltung(),
+        ]);
+        setTeilnehmerAnmeldung(teilnehmerAnmeldungData);
+        setKursleiterVerwaltung(kursleiterVerwaltungData);
+        setKursVerwaltung(kursVerwaltungData);
+      } catch {
+        // silently ignore — stale data is better than no data
+      }
+    }
+    function handleRefresh() { void silentRefresh(); }
+    window.addEventListener('dashboard-refresh', handleRefresh);
+    return () => window.removeEventListener('dashboard-refresh', handleRefresh);
+  }, []);
 
   const kursleiterVerwaltungMap = useMemo(() => {
     const m = new Map<string, KursleiterVerwaltung>();
@@ -50,5 +56,11 @@ export function useDashboardData() {
     return m;
   }, [kursleiterVerwaltung]);
 
-  return { teilnehmerAnmeldung, setTeilnehmerAnmeldung, kursVerwaltung, setKursVerwaltung, yogaKursManagement, setYogaKursManagement, kursleiterVerwaltung, setKursleiterVerwaltung, loading, error, fetchAll, kursVerwaltungMap, yogaKursManagementMap, kursleiterVerwaltungMap };
+  const kursVerwaltungMap = useMemo(() => {
+    const m = new Map<string, KursVerwaltung>();
+    kursVerwaltung.forEach(r => m.set(r.record_id, r));
+    return m;
+  }, [kursVerwaltung]);
+
+  return { teilnehmerAnmeldung, setTeilnehmerAnmeldung, kursleiterVerwaltung, setKursleiterVerwaltung, kursVerwaltung, setKursVerwaltung, loading, error, fetchAll, kursleiterVerwaltungMap, kursVerwaltungMap };
 }

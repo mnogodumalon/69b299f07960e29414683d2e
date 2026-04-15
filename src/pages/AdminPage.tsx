@@ -1,15 +1,13 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useDashboardData } from '@/hooks/useDashboardData';
-import type { TeilnehmerAnmeldung, KursVerwaltung, YogaKursManagement, KursleiterVerwaltung } from '@/types/app';
+import type { TeilnehmerAnmeldung, KursleiterVerwaltung, KursVerwaltung } from '@/types/app';
 import { LivingAppsService, extractRecordId, cleanFieldsForApi } from '@/services/livingAppsService';
 import { TeilnehmerAnmeldungDialog } from '@/components/dialogs/TeilnehmerAnmeldungDialog';
 import { TeilnehmerAnmeldungViewDialog } from '@/components/dialogs/TeilnehmerAnmeldungViewDialog';
-import { KursVerwaltungDialog } from '@/components/dialogs/KursVerwaltungDialog';
-import { KursVerwaltungViewDialog } from '@/components/dialogs/KursVerwaltungViewDialog';
-import { YogaKursManagementDialog } from '@/components/dialogs/YogaKursManagementDialog';
-import { YogaKursManagementViewDialog } from '@/components/dialogs/YogaKursManagementViewDialog';
 import { KursleiterVerwaltungDialog } from '@/components/dialogs/KursleiterVerwaltungDialog';
 import { KursleiterVerwaltungViewDialog } from '@/components/dialogs/KursleiterVerwaltungViewDialog';
+import { KursVerwaltungDialog } from '@/components/dialogs/KursVerwaltungDialog';
+import { KursVerwaltungViewDialog } from '@/components/dialogs/KursVerwaltungViewDialog';
 import { BulkEditDialog } from '@/components/dialogs/BulkEditDialog';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { PageShell } from '@/components/PageShell';
@@ -26,7 +24,7 @@ import {
   SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Pencil, Trash2, Plus, Filter, X, ArrowUpDown, ArrowUp, ArrowDown, Search, Copy, FileText } from 'lucide-react';
+import { IconPencil, IconTrash, IconPlus, IconFilter, IconX, IconArrowsUpDown, IconArrowUp, IconArrowDown, IconSearch, IconCopy } from '@tabler/icons-react';
 import { format, parseISO } from 'date-fns';
 import { de } from 'date-fns/locale';
 
@@ -45,6 +43,15 @@ const TEILNEHMERANMELDUNG_FIELDS = [
   { key: 'anmeldedatum', label: 'Anmeldedatum', type: 'date/date' },
   { key: 'besondere_hinweise', label: 'Besondere Anforderungen / Hinweise', type: 'string/textarea' },
 ];
+const KURSLEITERVERWALTUNG_FIELDS = [
+  { key: 'nachname', label: 'Nachname', type: 'string/text' },
+  { key: 'email', label: 'E-Mail', type: 'string/email' },
+  { key: 'telefon', label: 'Telefon', type: 'string/tel' },
+  { key: 'qualifikationen', label: 'Qualifikationen / Zertifizierungen', type: 'string/textarea' },
+  { key: 'vorname', label: 'Vorname', type: 'string/text' },
+  { key: 'spezialisierungen', label: 'Spezialisierungen', type: 'multiplelookup/checkbox', options: [{ key: 'vinyasa', label: 'Vinyasa Yoga' }, { key: 'yin', label: 'Yin Yoga' }, { key: 'ashtanga', label: 'Ashtanga Yoga' }, { key: 'kundalini', label: 'Kundalini Yoga' }, { key: 'restorative', label: 'Restorative Yoga' }, { key: 'power', label: 'Power Yoga' }, { key: 'prenatal', label: 'Prenatal Yoga' }, { key: 'hatha', label: 'Hatha Yoga' }] },
+  { key: 'biografie', label: 'Biografie', type: 'string/textarea' },
+];
 const KURSVERWALTUNG_FIELDS = [
   { key: 'kursname', label: 'Kursname', type: 'string/text' },
   { key: 'beschreibung', label: 'Beschreibung', type: 'string/textarea' },
@@ -57,66 +64,11 @@ const KURSVERWALTUNG_FIELDS = [
   { key: 'preis', label: 'Preis (in Euro)', type: 'number' },
   { key: 'kursleiter', label: 'Kursleiter', type: 'applookup/select', targetEntity: 'kursleiter_verwaltung', targetAppId: 'KURSLEITER_VERWALTUNG', displayField: 'nachname' },
 ];
-const YOGAKURSMANAGEMENT_FIELDS = [
-  { key: 'title', label: 'Title', type: 'string/text' },
-  { key: 'url', label: 'URL', type: 'string/text' },
-  { key: 'template', label: 'Template', type: 'string/text' },
-  { key: 'breite_mobil2', label: 'Breite (Mobil)', type: 'number' },
-  { key: 'hoehe_mobil2', label: 'Höhe (Mobil)', type: 'number' },
-  { key: 'spalte_tablet', label: 'Spalte (Tablet)', type: 'number' },
-  { key: 'breite_tablet2', label: 'Breite (Desktop)', type: 'number' },
-  { key: 'spalte_desktop', label: 'Spalte (Desktop)', type: 'number' },
-  { key: 'spalte_fullhd', label: 'Spalte (FullHD)', type: 'number' },
-  { key: 'darstellung', label: 'Darstellung', type: 'lookup/select', options: [{ key: 'titel', label: 'Titel' }, { key: 'karte', label: 'Karte' }] },
-  { key: 'hintergrund_farbe_2_hell', label: 'Hintergrund-Farbe 2 hell', type: 'string/text' },
-  { key: 'kategorie', label: 'Kategorie', type: 'string/text' },
-  { key: 'hintergrund_farbe_1_hell', label: 'Hintergrund-Farbe 1 hell', type: 'string/text' },
-  { key: 'hintergrund_bild_hell', label: 'Hintergrund-Bild hell', type: 'file' },
-  { key: 'app_id', label: 'App-ID', type: 'string/text' },
-  { key: 'icon', label: 'Icon', type: 'string/text' },
-  { key: 'parameter_identifizierer', label: 'Parameter-Identifizierer', type: 'string/text' },
-  { key: 'target', label: 'Target', type: 'string/text' },
-  { key: 'breite_tablet', label: 'Breite (Tablet)', type: 'number' },
-  { key: 'hoehe_widescreen', label: 'Höhe (Widescreen)', type: 'number' },
-  { key: 'hoehe_fullhd', label: 'Höhe (FullHD)', type: 'number' },
-  { key: 'text_farbe_hell', label: 'Text-Farbe hell', type: 'string/text' },
-  { key: 'hintergrund_bild_dunkel', label: 'Hintergrund-Bild dunkel', type: 'file' },
-  { key: 'uebergeordnetes_panel', label: 'Übergeordnetes Panel', type: 'applookup/select', targetEntity: 'yoga_kurs_management', targetAppId: 'YOGA_KURS_MANAGEMENT', displayField: 'icon' },
-  { key: 'dummy', label: 'Dummy', type: 'string/text' },
-  { key: 'beschriftung', label: 'Beschriftung', type: 'string/text' },
-  { key: 'reihenfolge', label: 'Reihenfolge', type: 'number' },
-  { key: 'hoehe_tablet', label: 'Höhe (Tablet)', type: 'number' },
-  { key: 'spalte_widescreen', label: 'Spalte (Widescreen)', type: 'number' },
-  { key: 'beschreibung', label: 'Beschreibung', type: 'string/textarea' },
-  { key: 'hoehe_desktop', label: 'Höhe (Desktop)', type: 'number' },
-  { key: 'breite_widescreen', label: 'Breite (Widescreen)', type: 'number' },
-  { key: 'breite_fullhd', label: 'Breite (FullHD)', type: 'number' },
-  { key: 'hintergrund', label: 'Hintergrund', type: 'lookup/select', options: [{ key: 'linearer_farbverlauf', label: 'Linearer Farbverlauf' }, { key: 'bild', label: 'Bild' }, { key: 'kreisfoermiger_farbverlauf', label: 'Kreisförmiger Farbverlauf' }, { key: 'einfache_farbe', label: 'Einfache Farbe' }] },
-  { key: 'text_farbe_dunkel', label: 'Text-Farbe dunkel', type: 'string/text' },
-  { key: 'hintergrund_farbe_1_dunkel', label: 'Hintergrund-Farbe 1 dunkel', type: 'string/text' },
-  { key: 'hintergrund_farbe_2_dunkel', label: 'Hintergrund-Farbe 2 dunkel', type: 'string/text' },
-  { key: 'css_class', label: 'CSS-Class', type: 'string/text' },
-  { key: 'spalte_mobil2', label: 'Spalte (Mobil)', type: 'number' },
-  { key: 'parameter_typ', label: 'Parameter-Typ', type: 'lookup/select', options: [{ key: 'number', label: 'number' }, { key: 'string', label: 'string' }, { key: 'html', label: 'html' }, { key: 'color', label: 'color' }, { key: 'date', label: 'date' }, { key: 'option_1', label: 'bool' }, { key: 'option_2', label: 'int' }, { key: 'datetime', label: 'datetime' }, { key: 'datedelta', label: 'datedelta' }, { key: 'datetimedelta', label: 'datetimedelta' }, { key: 'monthdelta', label: 'monthdelta' }, { key: 'upload', label: 'upload' }, { key: 'control', label: 'control' }] },
-  { key: 'parameter_ist_zuruecksetzbar', label: 'Parameter ist zurücksetzbar', type: 'bool' },
-  { key: 'parameter_ist_pflichtfeld', label: 'Parameter ist Pflichtfeld', type: 'bool' },
-  { key: 'parameter_optionen', label: 'Parameter-Optionen', type: 'string/textarea' },
-];
-const KURSLEITERVERWALTUNG_FIELDS = [
-  { key: 'nachname', label: 'Nachname', type: 'string/text' },
-  { key: 'email', label: 'E-Mail', type: 'string/email' },
-  { key: 'telefon', label: 'Telefon', type: 'string/tel' },
-  { key: 'qualifikationen', label: 'Qualifikationen / Zertifizierungen', type: 'string/textarea' },
-  { key: 'vorname', label: 'Vorname', type: 'string/text' },
-  { key: 'spezialisierungen', label: 'Spezialisierungen', type: 'multiplelookup/checkbox', options: [{ key: 'vinyasa', label: 'Vinyasa Yoga' }, { key: 'yin', label: 'Yin Yoga' }, { key: 'ashtanga', label: 'Ashtanga Yoga' }, { key: 'kundalini', label: 'Kundalini Yoga' }, { key: 'restorative', label: 'Restorative Yoga' }, { key: 'power', label: 'Power Yoga' }, { key: 'prenatal', label: 'Prenatal Yoga' }, { key: 'hatha', label: 'Hatha Yoga' }] },
-  { key: 'biografie', label: 'Biografie', type: 'string/textarea' },
-];
 
 const ENTITY_TABS = [
   { key: 'teilnehmer_anmeldung', label: 'Teilnehmer-Anmeldung', pascal: 'TeilnehmerAnmeldung' },
-  { key: 'kurs_verwaltung', label: 'Kurs-Verwaltung', pascal: 'KursVerwaltung' },
-  { key: 'yoga_kurs_management', label: 'Yoga Kurs Management', pascal: 'YogaKursManagement' },
   { key: 'kursleiter_verwaltung', label: 'Kursleiter-Verwaltung', pascal: 'KursleiterVerwaltung' },
+  { key: 'kurs_verwaltung', label: 'Kurs-Verwaltung', pascal: 'KursVerwaltung' },
 ] as const;
 
 type EntityKey = typeof ENTITY_TABS[number]['key'];
@@ -127,16 +79,14 @@ export default function AdminPage() {
 
   const [activeTab, setActiveTab] = useState<EntityKey>('teilnehmer_anmeldung');
   const [selectedIds, setSelectedIds] = useState<Record<EntityKey, Set<string>>>(() => ({
-    teilnehmer_anmeldung: new Set(),
-    kurs_verwaltung: new Set(),
-    yoga_kurs_management: new Set(),
-    kursleiter_verwaltung: new Set(),
+    'teilnehmer_anmeldung': new Set(),
+    'kursleiter_verwaltung': new Set(),
+    'kurs_verwaltung': new Set(),
   }));
   const [filters, setFilters] = useState<Record<EntityKey, Record<string, string>>>(() => ({
-    teilnehmer_anmeldung: {},
-    kurs_verwaltung: {},
-    yoga_kurs_management: {},
-    kursleiter_verwaltung: {},
+    'teilnehmer_anmeldung': {},
+    'kursleiter_verwaltung': {},
+    'kurs_verwaltung': {},
   }));
   const [showFilters, setShowFilters] = useState(false);
   const [dialogState, setDialogState] = useState<{ entity: EntityKey; record: any } | null>(null);
@@ -152,9 +102,8 @@ export default function AdminPage() {
   const getRecords = useCallback((entity: EntityKey) => {
     switch (entity) {
       case 'teilnehmer_anmeldung': return (data as any).teilnehmerAnmeldung as TeilnehmerAnmeldung[] ?? [];
-      case 'kurs_verwaltung': return (data as any).kursVerwaltung as KursVerwaltung[] ?? [];
-      case 'yoga_kurs_management': return (data as any).yogaKursManagement as YogaKursManagement[] ?? [];
       case 'kursleiter_verwaltung': return (data as any).kursleiterVerwaltung as KursleiterVerwaltung[] ?? [];
+      case 'kurs_verwaltung': return (data as any).kursVerwaltung as KursVerwaltung[] ?? [];
       default: return [];
     }
   }, [data]);
@@ -167,9 +116,6 @@ export default function AdminPage() {
         break;
       case 'kurs_verwaltung':
         lists.kursleiter_verwaltungList = (data as any).kursleiterVerwaltung ?? [];
-        break;
-      case 'yoga_kurs_management':
-        lists.yoga_kurs_managementList = (data as any).yogaKursManagement ?? [];
         break;
     }
     return lists;
@@ -189,19 +135,14 @@ export default function AdminPage() {
       const match = (lists.kursleiter_verwaltungList ?? []).find((r: any) => r.record_id === id);
       return match?.fields.nachname ?? '—';
     }
-    if (entity === 'yoga_kurs_management' && fieldKey === 'uebergeordnetes_panel') {
-      const match = (lists.yoga_kurs_managementList ?? []).find((r: any) => r.record_id === id);
-      return match?.fields.icon ?? '—';
-    }
     return String(url);
   }, [getLookupLists]);
 
   const getFieldMeta = useCallback((entity: EntityKey) => {
     switch (entity) {
       case 'teilnehmer_anmeldung': return TEILNEHMERANMELDUNG_FIELDS;
-      case 'kurs_verwaltung': return KURSVERWALTUNG_FIELDS;
-      case 'yoga_kurs_management': return YOGAKURSMANAGEMENT_FIELDS;
       case 'kursleiter_verwaltung': return KURSLEITERVERWALTUNG_FIELDS;
+      case 'kurs_verwaltung': return KURSVERWALTUNG_FIELDS;
       default: return [];
     }
   }, []);
@@ -301,20 +242,15 @@ export default function AdminPage() {
         update: (id: string, fields: any) => LivingAppsService.updateTeilnehmerAnmeldungEntry(id, fields),
         remove: (id: string) => LivingAppsService.deleteTeilnehmerAnmeldungEntry(id),
       };
-      case 'kurs_verwaltung': return {
-        create: (fields: any) => LivingAppsService.createKursVerwaltungEntry(fields),
-        update: (id: string, fields: any) => LivingAppsService.updateKursVerwaltungEntry(id, fields),
-        remove: (id: string) => LivingAppsService.deleteKursVerwaltungEntry(id),
-      };
-      case 'yoga_kurs_management': return {
-        create: (fields: any) => LivingAppsService.createYogaKursManagementEntry(fields),
-        update: (id: string, fields: any) => LivingAppsService.updateYogaKursManagementEntry(id, fields),
-        remove: (id: string) => LivingAppsService.deleteYogaKursManagementEntry(id),
-      };
       case 'kursleiter_verwaltung': return {
         create: (fields: any) => LivingAppsService.createKursleiterVerwaltungEntry(fields),
         update: (id: string, fields: any) => LivingAppsService.updateKursleiterVerwaltungEntry(id, fields),
         remove: (id: string) => LivingAppsService.deleteKursleiterVerwaltungEntry(id),
+      };
+      case 'kurs_verwaltung': return {
+        create: (fields: any) => LivingAppsService.createKursVerwaltungEntry(fields),
+        update: (id: string, fields: any) => LivingAppsService.updateKursVerwaltungEntry(id, fields),
+        remove: (id: string) => LivingAppsService.deleteKursVerwaltungEntry(id),
       };
       default: return null;
     }
@@ -436,7 +372,7 @@ export default function AdminPage() {
       subtitle="Alle Daten verwalten"
       action={
         <Button onClick={() => setCreateEntity(activeTab)} className="shrink-0">
-          <Plus className="h-4 w-4 mr-2" /> Hinzufügen
+          <IconPlus className="h-4 w-4 mr-2" /> Hinzufügen
         </Button>
       }
     >
@@ -463,7 +399,7 @@ export default function AdminPage() {
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-2">
           <div className="relative w-full max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Suchen..."
               value={search}
@@ -472,7 +408,7 @@ export default function AdminPage() {
             />
           </div>
           <Button variant="outline" size="sm" onClick={() => setShowFilters(f => !f)} className="gap-2">
-            <Filter className="h-4 w-4" />
+            <IconFilter className="h-4 w-4" />
             Filtern
             {activeFilterCount > 0 && (
               <Badge variant="secondary" className="ml-1">{activeFilterCount}</Badge>
@@ -488,16 +424,16 @@ export default function AdminPage() {
           <div className="flex items-center gap-2 flex-wrap bg-muted/60 rounded-lg px-3 py-1.5">
             <span className="text-sm font-medium">{sel.size} ausgewählt</span>
             <Button variant="outline" size="sm" onClick={() => setBulkEditOpen(activeTab)}>
-              <Pencil className="h-3.5 w-3.5 sm:mr-1" /> <span className="hidden sm:inline">Feld bearbeiten</span>
+              <IconPencil className="h-3.5 w-3.5 sm:mr-1" /> <span className="hidden sm:inline">Feld bearbeiten</span>
             </Button>
             <Button variant="outline" size="sm" onClick={() => handleBulkClone()}>
-              <Copy className="h-3.5 w-3.5 sm:mr-1" /> <span className="hidden sm:inline">Kopieren</span>
+              <IconCopy className="h-3.5 w-3.5 sm:mr-1" /> <span className="hidden sm:inline">Kopieren</span>
             </Button>
             <Button variant="destructive" size="sm" onClick={() => setDeleteTargets({ entity: activeTab, ids: Array.from(sel) })}>
-              <Trash2 className="h-3.5 w-3.5 sm:mr-1" /> <span className="hidden sm:inline">Ausgewählte löschen</span>
+              <IconTrash className="h-3.5 w-3.5 sm:mr-1" /> <span className="hidden sm:inline">Ausgewählte löschen</span>
             </Button>
             <Button variant="ghost" size="sm" onClick={() => clearSelection(activeTab)}>
-              <X className="h-3.5 w-3.5 sm:mr-1" /> <span className="hidden sm:inline">Auswahl aufheben</span>
+              <IconX className="h-3.5 w-3.5 sm:mr-1" /> <span className="hidden sm:inline">Auswahl aufheben</span>
             </Button>
           </div>
         )}
@@ -554,7 +490,7 @@ export default function AdminPage() {
                 <TableHead key={fm.key} className="uppercase text-xs font-semibold text-secondary-foreground tracking-wider px-6 cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => toggleSort(fm.key)}>
                   <span className="inline-flex items-center gap-1">
                     {fm.label}
-                    {sortKey === fm.key ? (sortDir === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />) : <ArrowUpDown size={14} className="opacity-30" />}
+                    {sortKey === fm.key ? (sortDir === 'asc' ? <IconArrowUp size={14} /> : <IconArrowDown size={14} />) : <IconArrowsUpDown size={14} className="opacity-30" />}
                   </span>
                 </TableHead>
               ))}
@@ -623,10 +559,10 @@ export default function AdminPage() {
                 <TableCell>
                   <div className="flex gap-1">
                     <Button variant="ghost" size="icon" onClick={() => setDialogState({ entity: activeTab, record })}>
-                      <Pencil className="h-4 w-4" />
+                      <IconPencil className="h-4 w-4" />
                     </Button>
                     <Button variant="ghost" size="icon" onClick={() => setDeleteTargets({ entity: activeTab, ids: [record.record_id] })}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
+                      <IconTrash className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>
                 </TableCell>
@@ -654,6 +590,16 @@ export default function AdminPage() {
           enablePhotoLocation={AI_PHOTO_LOCATION['TeilnehmerAnmeldung']}
         />
       )}
+      {(createEntity === 'kursleiter_verwaltung' || dialogState?.entity === 'kursleiter_verwaltung') && (
+        <KursleiterVerwaltungDialog
+          open={createEntity === 'kursleiter_verwaltung' || dialogState?.entity === 'kursleiter_verwaltung'}
+          onClose={() => { setCreateEntity(null); setDialogState(null); }}
+          onSubmit={dialogState?.entity === 'kursleiter_verwaltung' ? handleUpdate : (fields: any) => handleCreate('kursleiter_verwaltung', fields)}
+          defaultValues={dialogState?.entity === 'kursleiter_verwaltung' ? dialogState.record?.fields : undefined}
+          enablePhotoScan={AI_PHOTO_SCAN['KursleiterVerwaltung']}
+          enablePhotoLocation={AI_PHOTO_LOCATION['KursleiterVerwaltung']}
+        />
+      )}
       {(createEntity === 'kurs_verwaltung' || dialogState?.entity === 'kurs_verwaltung') && (
         <KursVerwaltungDialog
           open={createEntity === 'kurs_verwaltung' || dialogState?.entity === 'kurs_verwaltung'}
@@ -665,27 +611,6 @@ export default function AdminPage() {
           enablePhotoLocation={AI_PHOTO_LOCATION['KursVerwaltung']}
         />
       )}
-      {(createEntity === 'yoga_kurs_management' || dialogState?.entity === 'yoga_kurs_management') && (
-        <YogaKursManagementDialog
-          open={createEntity === 'yoga_kurs_management' || dialogState?.entity === 'yoga_kurs_management'}
-          onClose={() => { setCreateEntity(null); setDialogState(null); }}
-          onSubmit={dialogState?.entity === 'yoga_kurs_management' ? handleUpdate : (fields: any) => handleCreate('yoga_kurs_management', fields)}
-          defaultValues={dialogState?.entity === 'yoga_kurs_management' ? dialogState.record?.fields : undefined}
-          yoga_kurs_managementList={(data as any).yogaKursManagement ?? []}
-          enablePhotoScan={AI_PHOTO_SCAN['YogaKursManagement']}
-          enablePhotoLocation={AI_PHOTO_LOCATION['YogaKursManagement']}
-        />
-      )}
-      {(createEntity === 'kursleiter_verwaltung' || dialogState?.entity === 'kursleiter_verwaltung') && (
-        <KursleiterVerwaltungDialog
-          open={createEntity === 'kursleiter_verwaltung' || dialogState?.entity === 'kursleiter_verwaltung'}
-          onClose={() => { setCreateEntity(null); setDialogState(null); }}
-          onSubmit={dialogState?.entity === 'kursleiter_verwaltung' ? handleUpdate : (fields: any) => handleCreate('kursleiter_verwaltung', fields)}
-          defaultValues={dialogState?.entity === 'kursleiter_verwaltung' ? dialogState.record?.fields : undefined}
-          enablePhotoScan={AI_PHOTO_SCAN['KursleiterVerwaltung']}
-          enablePhotoLocation={AI_PHOTO_LOCATION['KursleiterVerwaltung']}
-        />
-      )}
       {viewState?.entity === 'teilnehmer_anmeldung' && (
         <TeilnehmerAnmeldungViewDialog
           open={viewState?.entity === 'teilnehmer_anmeldung'}
@@ -695,6 +620,14 @@ export default function AdminPage() {
           kurs_verwaltungList={(data as any).kursVerwaltung ?? []}
         />
       )}
+      {viewState?.entity === 'kursleiter_verwaltung' && (
+        <KursleiterVerwaltungViewDialog
+          open={viewState?.entity === 'kursleiter_verwaltung'}
+          onClose={() => setViewState(null)}
+          record={viewState?.record}
+          onEdit={(r: any) => { setViewState(null); setDialogState({ entity: 'kursleiter_verwaltung', record: r }); }}
+        />
+      )}
       {viewState?.entity === 'kurs_verwaltung' && (
         <KursVerwaltungViewDialog
           open={viewState?.entity === 'kurs_verwaltung'}
@@ -702,23 +635,6 @@ export default function AdminPage() {
           record={viewState?.record}
           onEdit={(r: any) => { setViewState(null); setDialogState({ entity: 'kurs_verwaltung', record: r }); }}
           kursleiter_verwaltungList={(data as any).kursleiterVerwaltung ?? []}
-        />
-      )}
-      {viewState?.entity === 'yoga_kurs_management' && (
-        <YogaKursManagementViewDialog
-          open={viewState?.entity === 'yoga_kurs_management'}
-          onClose={() => setViewState(null)}
-          record={viewState?.record}
-          onEdit={(r: any) => { setViewState(null); setDialogState({ entity: 'yoga_kurs_management', record: r }); }}
-          yoga_kurs_managementList={(data as any).yogaKursManagement ?? []}
-        />
-      )}
-      {viewState?.entity === 'kursleiter_verwaltung' && (
-        <KursleiterVerwaltungViewDialog
-          open={viewState?.entity === 'kursleiter_verwaltung'}
-          onClose={() => setViewState(null)}
-          record={viewState?.record}
-          onEdit={(r: any) => { setViewState(null); setDialogState({ entity: 'kursleiter_verwaltung', record: r }); }}
         />
       )}
 

@@ -15,9 +15,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
-  AlertCircle, Plus, Pencil, Trash2, Users, BookOpen,
-  Clock, MapPin, User, ChevronRight, Calendar, TrendingUp, Euro
-} from 'lucide-react';
+  IconAlertCircle, IconPlus, IconPencil, IconTrash, IconUsers, IconBook,
+  IconClock, IconMapPin, IconUser, IconChevronRight, IconCalendar, IconTrendingUp, IconCurrencyEuro
+} from '@tabler/icons-react';
 
 // --- Utility ---
 function isFuture(dt?: string) {
@@ -161,7 +161,7 @@ export default function DashboardOverview() {
           <p className="text-sm text-muted-foreground mt-0.5">Kursverwaltung &amp; Anmeldungen</p>
         </div>
         <Button onClick={() => setKursDialog({ open: true })} className="gap-2 shrink-0">
-          <Plus size={16} className="shrink-0" />
+          <IconPlus size={16} stroke={1.5} className="shrink-0" />
           <span>Neuer Kurs</span>
         </Button>
       </div>
@@ -172,25 +172,25 @@ export default function DashboardOverview() {
           title="Kurse gesamt"
           value={String(enrichedKurse.length)}
           description="Alle Kurse"
-          icon={<BookOpen size={18} className="text-muted-foreground" />}
+          icon={<IconBook size={18} stroke={1.5} className="text-muted-foreground" />}
         />
         <StatCard
           title="Bevorstehend"
           value={String(upcomingCount)}
           description="Zukünftige Kurse"
-          icon={<Calendar size={18} className="text-muted-foreground" />}
+          icon={<IconCalendar size={18} stroke={1.5} className="text-muted-foreground" />}
         />
         <StatCard
           title="Anmeldungen"
           value={String(teilnehmerAnmeldung.length)}
           description="Teilnehmer gesamt"
-          icon={<Users size={18} className="text-muted-foreground" />}
+          icon={<IconUsers size={18} stroke={1.5} className="text-muted-foreground" />}
         />
         <StatCard
           title="Einnahmen"
           value={formatCurrency(totalRevenue)}
           description="Geschätzte Einnahmen"
-          icon={<Euro size={18} className="text-muted-foreground" />}
+          icon={<IconCurrencyEuro size={18} stroke={1.5} className="text-muted-foreground" />}
         />
       </div>
 
@@ -217,10 +217,10 @@ export default function DashboardOverview() {
 
           {filteredKurse.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 gap-2 text-muted-foreground">
-              <BookOpen size={36} />
+              <IconBook size={36} stroke={1.5} />
               <p className="text-sm">Keine Kurse</p>
               <Button size="sm" variant="outline" onClick={() => setKursDialog({ open: true })}>
-                <Plus size={14} className="mr-1" /> Kurs anlegen
+                <IconPlus size={14} stroke={1.5} className="mr-1" /> Kurs anlegen
               </Button>
             </div>
           ) : (
@@ -261,11 +261,11 @@ export default function DashboardOverview() {
                           </span>
                         )}
                         <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
-                          <Users size={10} /> {reg}{max > 0 ? `/${max}` : ''}
+                          <IconUsers size={10} stroke={1.5} /> {reg}{max > 0 ? `/${max}` : ''}
                         </span>
                       </div>
                     </div>
-                    <ChevronRight size={14} className={`shrink-0 mt-1 transition-transform text-muted-foreground ${isSelected ? 'rotate-90 text-primary' : ''}`} />
+                    <IconChevronRight size={14} stroke={1.5} className={`shrink-0 mt-1 transition-transform text-muted-foreground ${isSelected ? 'rotate-90 text-primary' : ''}`} />
                   </div>
                 );
               })}
@@ -277,7 +277,7 @@ export default function DashboardOverview() {
         <div className="lg:col-span-3">
           {!selectedKurs ? (
             <div className="h-full rounded-2xl border border-dashed border-border flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
-              <TrendingUp size={40} />
+              <IconTrendingUp size={40} stroke={1.5} />
               <p className="font-medium text-sm">Kurs auswählen</p>
               <p className="text-xs text-center max-w-48">Klicke auf einen Kurs links, um Details und Anmeldungen zu sehen</p>
             </div>
@@ -299,7 +299,7 @@ export default function DashboardOverview() {
                       onClick={() => setKursDialog({ open: true, record: selectedKurs })}
                       className="gap-1.5"
                     >
-                      <Pencil size={13} className="shrink-0" />
+                      <IconPencil size={13} stroke={1.5} className="shrink-0" />
                       <span className="hidden sm:inline">Bearbeiten</span>
                     </Button>
                     <Button
@@ -308,7 +308,7 @@ export default function DashboardOverview() {
                       onClick={() => setDeleteKurs(selectedKurs)}
                       className="gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
                     >
-                      <Trash2 size={13} className="shrink-0" />
+                      <IconTrash size={13} stroke={1.5} className="shrink-0" />
                     </Button>
                   </div>
                 </div>
@@ -318,28 +318,28 @@ export default function DashboardOverview() {
                   <div className="flex flex-col gap-0.5">
                     <span className="text-[10px] text-muted-foreground uppercase font-medium tracking-wide">Datum</span>
                     <span className="text-sm font-medium flex items-center gap-1">
-                      <Calendar size={12} className="text-primary shrink-0" />
+                      <IconCalendar size={12} stroke={1.5} className="text-primary shrink-0" />
                       {formatDateTime(selectedKurs.fields.datum_uhrzeit)}
                     </span>
                   </div>
                   <div className="flex flex-col gap-0.5">
                     <span className="text-[10px] text-muted-foreground uppercase font-medium tracking-wide">Dauer</span>
                     <span className="text-sm font-medium flex items-center gap-1">
-                      <Clock size={12} className="text-primary shrink-0" />
+                      <IconClock size={12} stroke={1.5} className="text-primary shrink-0" />
                       {selectedKurs.fields.dauer ? `${selectedKurs.fields.dauer} Min.` : '—'}
                     </span>
                   </div>
                   <div className="flex flex-col gap-0.5">
                     <span className="text-[10px] text-muted-foreground uppercase font-medium tracking-wide">Ort / Raum</span>
                     <span className="text-sm font-medium flex items-center gap-1 truncate">
-                      <MapPin size={12} className="text-primary shrink-0" />
+                      <IconMapPin size={12} stroke={1.5} className="text-primary shrink-0" />
                       <span className="truncate">{selectedKurs.fields.ort_raum ?? '—'}</span>
                     </span>
                   </div>
                   <div className="flex flex-col gap-0.5">
                     <span className="text-[10px] text-muted-foreground uppercase font-medium tracking-wide">Kursleiter</span>
                     <span className="text-sm font-medium flex items-center gap-1 truncate">
-                      <User size={12} className="text-primary shrink-0" />
+                      <IconUser size={12} stroke={1.5} className="text-primary shrink-0" />
                       <span className="truncate">{selectedKurs.kursleiterName || '—'}</span>
                     </span>
                   </div>
@@ -389,7 +389,7 @@ export default function DashboardOverview() {
               <div className="rounded-2xl border border-border bg-card overflow-hidden">
                 <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-muted/20">
                   <h3 className="font-semibold text-sm text-foreground flex items-center gap-2">
-                    <Users size={15} className="text-primary shrink-0" />
+                    <IconUsers size={15} stroke={1.5} className="text-primary shrink-0" />
                     Angemeldete Teilnehmer
                     <span className="ml-1 bg-primary/10 text-primary text-xs px-1.5 py-0.5 rounded-full font-medium">
                       {registered}
@@ -401,21 +401,21 @@ export default function DashboardOverview() {
                     onClick={() => setAnmeldungDialog({ open: true, preKursId: selectedKursId ?? undefined })}
                     className="gap-1.5 text-xs"
                   >
-                    <Plus size={13} className="shrink-0" />
+                    <IconPlus size={13} stroke={1.5} className="shrink-0" />
                     <span>Anmelden</span>
                   </Button>
                 </div>
 
                 {anmeldungenFuerKurs.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-10 gap-2 text-muted-foreground">
-                    <Users size={32} />
+                    <IconUsers size={32} stroke={1.5} />
                     <p className="text-sm">Noch keine Anmeldungen</p>
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => setAnmeldungDialog({ open: true, preKursId: selectedKursId ?? undefined })}
                     >
-                      <Plus size={13} className="mr-1" /> Ersten Teilnehmer anmelden
+                      <IconPlus size={13} stroke={1.5} className="mr-1" /> Ersten Teilnehmer anmelden
                     </Button>
                   </div>
                 ) : (
@@ -440,13 +440,13 @@ export default function DashboardOverview() {
                             onClick={() => setAnmeldungDialog({ open: true, record: a })}
                             className="p-1.5 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
                           >
-                            <Pencil size={13} />
+                            <IconPencil size={13} stroke={1.5} />
                           </button>
                           <button
                             onClick={() => setDeleteTeilnehmer(a)}
                             className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
                           >
-                            <Trash2 size={13} />
+                            <IconTrash size={13} stroke={1.5} />
                           </button>
                         </div>
                       </div>
@@ -525,7 +525,7 @@ function DashboardError({ error, onRetry }: { error: Error; onRetry: () => void 
   return (
     <div className="flex flex-col items-center justify-center py-24 gap-4">
       <div className="w-12 h-12 rounded-2xl bg-destructive/10 flex items-center justify-center">
-        <AlertCircle size={22} className="text-destructive" />
+        <IconAlertCircle size={22} stroke={1.5} className="text-destructive" />
       </div>
       <div className="text-center">
         <h3 className="font-semibold text-foreground mb-1">Fehler beim Laden</h3>
