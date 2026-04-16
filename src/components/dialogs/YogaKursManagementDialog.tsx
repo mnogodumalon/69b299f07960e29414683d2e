@@ -15,7 +15,7 @@ import {
   SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Camera, CheckCircle2, FileText, ImagePlus, Loader2, Sparkles, Upload, X } from 'lucide-react';
+import { IconCamera, IconCircleCheck, IconFileText, IconPhotoPlus, IconLoader2, IconSparkles, IconUpload, IconX } from '@tabler/icons-react';
 import { fileToDataUri, extractFromPhoto, extractPhotoMeta, reverseGeocode, dataUriToBlob } from '@/lib/ai';
 import { lookupKey } from '@/lib/formatters';
 
@@ -194,7 +194,7 @@ export function YogaKursManagementDialog({ open, onClose, onSubmit, defaultValue
           <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
             <div>
               <div className="flex items-center gap-1.5 font-medium">
-                <Sparkles className="h-4 w-4 text-primary" />
+                <IconSparkles stroke={1.5} className="h-4 w-4 text-primary" />
                 KI-Assistent
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">Versteht deine Fotos / Dokumente und füllt alles für dich aus</p>
@@ -250,7 +250,7 @@ export function YogaKursManagementDialog({ open, onClose, onSubmit, defaultValue
               {scanning ? (
                 <div className="flex flex-col items-center justify-center py-8 gap-3">
                   <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Loader2 className="h-7 w-7 text-primary animate-spin" />
+                    <IconLoader2 stroke={1.5} className="h-7 w-7 text-primary animate-spin" />
                   </div>
                   <div className="text-center">
                     <p className="text-sm font-medium">KI analysiert...</p>
@@ -260,7 +260,7 @@ export function YogaKursManagementDialog({ open, onClose, onSubmit, defaultValue
               ) : scanSuccess ? (
                 <div className="flex flex-col items-center justify-center py-8 gap-3">
                   <div className="h-14 w-14 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                    <CheckCircle2 className="h-7 w-7 text-green-600 dark:text-green-400" />
+                    <IconCircleCheck stroke={1.5} className="h-7 w-7 text-green-600 dark:text-green-400" />
                   </div>
                   <div className="text-center">
                     <p className="text-sm font-medium text-green-700 dark:text-green-400">Felder ausgefüllt!</p>
@@ -270,7 +270,7 @@ export function YogaKursManagementDialog({ open, onClose, onSubmit, defaultValue
               ) : (
                 <div className="flex flex-col items-center justify-center py-8 gap-3">
                   <div className="h-14 w-14 rounded-full bg-primary/8 flex items-center justify-center">
-                    <ImagePlus className="h-7 w-7 text-primary/70" />
+                    <IconPhotoPlus stroke={1.5} className="h-7 w-7 text-primary/70" />
                   </div>
                   <div className="text-center">
                     <p className="text-sm font-medium">Foto oder Dokument hierher ziehen oder auswählen</p>
@@ -287,7 +287,7 @@ export function YogaKursManagementDialog({ open, onClose, onSubmit, defaultValue
                       onClick={e => { e.stopPropagation(); setPreview(null); }}
                       className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-muted-foreground/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                     >
-                      <X className="h-2.5 w-2.5" />
+                      <IconX stroke={1.5} className="h-2.5 w-2.5" />
                     </button>
                   </div>
                 </div>
@@ -297,11 +297,11 @@ export function YogaKursManagementDialog({ open, onClose, onSubmit, defaultValue
             <div className="flex gap-2">
               <Button type="button" variant="outline" size="sm" className="flex-1 h-9 text-xs" disabled={scanning}
                 onClick={e => { e.stopPropagation(); cameraInputRef.current?.click(); }}>
-                <Camera className="h-3.5 w-3.5 mr-1.5" />Kamera
+                <IconCamera stroke={1.5} className="h-3.5 w-3.5 mr-1.5" />Kamera
               </Button>
               <Button type="button" variant="outline" size="sm" className="flex-1 h-9 text-xs" disabled={scanning}
                 onClick={e => { e.stopPropagation(); fileInputRef.current?.click(); }}>
-                <Upload className="h-3.5 w-3.5 mr-1.5" />Foto wählen
+                <IconUpload stroke={1.5} className="h-3.5 w-3.5 mr-1.5" />Foto wählen
               </Button>
               <Button type="button" variant="outline" size="sm" className="flex-1 h-9 text-xs" disabled={scanning}
                 onClick={e => {
@@ -312,7 +312,7 @@ export function YogaKursManagementDialog({ open, onClose, onSubmit, defaultValue
                     setTimeout(() => { if (fileInputRef.current) fileInputRef.current.accept = 'image/*,application/pdf'; }, 100);
                   }
                 }}>
-                <FileText className="h-3.5 w-3.5 mr-1.5" />Dokument
+                <IconFileText stroke={1.5} className="h-3.5 w-3.5 mr-1.5" />Dokument
               </Button>
             </div>
           </div>
@@ -441,7 +441,7 @@ export function YogaKursManagementDialog({ open, onClose, onSubmit, defaultValue
               <div className="flex items-center gap-3 rounded-lg border p-2">
                 <div className="relative h-14 w-14 shrink-0 rounded-md bg-muted overflow-hidden">
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <FileText size={20} className="text-muted-foreground" />
+                    <IconFileText size={20} stroke={1.5} className="text-muted-foreground" />
                   </div>
                   <img
                     src={fields.hintergrund_bild_hell}
@@ -485,7 +485,7 @@ export function YogaKursManagementDialog({ open, onClose, onSubmit, defaultValue
               <label
                 className="flex flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed border-muted-foreground/25 p-4 cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-colors"
               >
-                <Upload size={20} className="text-muted-foreground" />
+                <IconUpload size={20} stroke={1.5} className="text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">Datei hochladen</span>
                 <input
                   type="file"
@@ -576,7 +576,7 @@ export function YogaKursManagementDialog({ open, onClose, onSubmit, defaultValue
               <div className="flex items-center gap-3 rounded-lg border p-2">
                 <div className="relative h-14 w-14 shrink-0 rounded-md bg-muted overflow-hidden">
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <FileText size={20} className="text-muted-foreground" />
+                    <IconFileText size={20} stroke={1.5} className="text-muted-foreground" />
                   </div>
                   <img
                     src={fields.hintergrund_bild_dunkel}
@@ -620,7 +620,7 @@ export function YogaKursManagementDialog({ open, onClose, onSubmit, defaultValue
               <label
                 className="flex flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed border-muted-foreground/25 p-4 cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-colors"
               >
-                <Upload size={20} className="text-muted-foreground" />
+                <IconUpload size={20} stroke={1.5} className="text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">Datei hochladen</span>
                 <input
                   type="file"

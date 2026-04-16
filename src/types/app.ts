@@ -106,11 +106,16 @@ export const APP_IDS = {
   TEILNEHMER_ANMELDUNG: '69b299d6613496ad24b9483a',
   KURSLEITER_VERWALTUNG: '69b299d1b93ba834c1f3484d',
   KURS_VERWALTUNG: '69b299d62510305efd4cefc5',
-  YOGA_KURS_MANAGEMENT: '000000000000000000000000',
+  YOGA_KURS_MANAGEMENT: '69b299d62510305efd4cefc5',
 } as const;
 
 
 export const LOOKUP_OPTIONS: Record<string, Record<string, {key: string, label: string}[]>> = {
+  'yoga_kurs_management': {
+    darstellung: [{ key: "titel", label: "Titel" }, { key: "karte", label: "Karte" }],
+    hintergrund: [{ key: "linearer_farbverlauf", label: "Linearer Farbverlauf" }, { key: "bild", label: "Bild" }, { key: "kreisfoermiger_farbverlauf", label: "Kreisförmiger Farbverlauf" }, { key: "einfache_farbe", label: "Einfache Farbe" }],
+    parameter_typ: [{ key: "number", label: "number" }, { key: "string", label: "string" }, { key: "html", label: "html" }, { key: "color", label: "color" }, { key: "date", label: "date" }, { key: "option_1", label: "bool" }, { key: "option_2", label: "int" }, { key: "datetime", label: "datetime" }, { key: "datedelta", label: "datedelta" }, { key: "datetimedelta", label: "datetimedelta" }, { key: "monthdelta", label: "monthdelta" }, { key: "upload", label: "upload" }, { key: "control", label: "control" }],
+  },
   'kursleiter_verwaltung': {
     spezialisierungen: [{ key: "vinyasa", label: "Vinyasa Yoga" }, { key: "yin", label: "Yin Yoga" }, { key: "ashtanga", label: "Ashtanga Yoga" }, { key: "kundalini", label: "Kundalini Yoga" }, { key: "restorative", label: "Restorative Yoga" }, { key: "power", label: "Power Yoga" }, { key: "prenatal", label: "Prenatal Yoga" }, { key: "hatha", label: "Hatha Yoga" }],
   },
@@ -121,6 +126,51 @@ export const LOOKUP_OPTIONS: Record<string, Record<string, {key: string, label: 
 };
 
 export const FIELD_TYPES: Record<string, Record<string, string>> = {
+  'yoga_kurs_management': {
+    'title': 'string/text',
+    'url': 'string/text',
+    'template': 'string/text',
+    'breite_mobil2': 'number',
+    'hoehe_mobil2': 'number',
+    'spalte_tablet': 'number',
+    'breite_tablet2': 'number',
+    'spalte_desktop': 'number',
+    'spalte_fullhd': 'number',
+    'darstellung': 'lookup/select',
+    'hintergrund_farbe_2_hell': 'string/text',
+    'kategorie': 'string/text',
+    'hintergrund_farbe_1_hell': 'string/text',
+    'hintergrund_bild_hell': 'upload/file',
+    'app_id': 'string/text',
+    'icon': 'string/text',
+    'parameter_identifizierer': 'string/text',
+    'target': 'string/text',
+    'breite_tablet': 'number',
+    'hoehe_widescreen': 'number',
+    'hoehe_fullhd': 'number',
+    'text_farbe_hell': 'string/text',
+    'hintergrund_bild_dunkel': 'upload/file',
+    'uebergeordnetes_panel': 'applookup/select',
+    'dummy': 'string/text',
+    'beschriftung': 'string/text',
+    'reihenfolge': 'number',
+    'hoehe_tablet': 'number',
+    'spalte_widescreen': 'number',
+    'beschreibung': 'string/textarea',
+    'hoehe_desktop': 'number',
+    'breite_widescreen': 'number',
+    'breite_fullhd': 'number',
+    'hintergrund': 'lookup/select',
+    'text_farbe_dunkel': 'string/text',
+    'hintergrund_farbe_1_dunkel': 'string/text',
+    'hintergrund_farbe_2_dunkel': 'string/text',
+    'css_class': 'string/text',
+    'spalte_mobil2': 'number',
+    'parameter_typ': 'lookup/select',
+    'parameter_ist_zuruecksetzbar': 'boolean',
+    'parameter_ist_pflichtfeld': 'boolean',
+    'parameter_optionen': 'string/textarea',
+  },
   'teilnehmer_anmeldung': {
     'kurs': 'applookup/select',
     'teilnehmer_vorname': 'string/text',
@@ -163,3 +213,4 @@ type StripLookup<T> = {
 export type CreateTeilnehmerAnmeldung = StripLookup<TeilnehmerAnmeldung['fields']>;
 export type CreateKursleiterVerwaltung = StripLookup<KursleiterVerwaltung['fields']>;
 export type CreateKursVerwaltung = StripLookup<KursVerwaltung['fields']>;
+export type CreateYogaKursManagement = StripLookup<YogaKursManagement['fields']>;

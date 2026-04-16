@@ -7,7 +7,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Pencil, FileText } from 'lucide-react';
+import { IconPencil } from '@tabler/icons-react';
 
 interface YogaKursManagementViewDialogProps {
   open: boolean;
@@ -34,7 +34,7 @@ export function YogaKursManagementViewDialog({ open, onClose, record, onEdit, yo
         </DialogHeader>
         <div className="flex justify-end">
           <Button size="sm" onClick={() => { onClose(); onEdit(record); }}>
-            <Pencil className="h-3.5 w-3.5 mr-1.5" />
+            <IconPencil stroke={1.5} className="h-3.5 w-3.5 mr-1.5" />
             Bearbeiten
           </Button>
         </div>
